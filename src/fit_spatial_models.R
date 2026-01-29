@@ -23,6 +23,24 @@ smooth <- 0
 sill <- 1
 neighb <- 20
 
+# ============================================================================
+# PARAMETER ESTIMATION SPECIFICATION
+# ============================================================================
+# We use a generalized Wendland correlation function (GenWend_Matern) with:
+#   - Fixed smoothness parameter: δ (smooth) = 0
+#   - Fixed compact-support parameter: μ (power2) = 1/4
+#   - Fixed nugget: 0
+#   - Fixed sill: 1 (for copula models only)
+#
+# Estimated parameters:
+#   - Regression: β₀ (mean), β₁ (mean1)
+#   - Marginal Weibull: κ (shape), α (scale)
+#   - Range parameter: α (scale) - same as Weibull scale parameter
+#
+# Note: The scale parameter α serves dual purpose as both the Weibull scale
+#       and the correlation range parameter.
+# ============================================================================
+
 X <- cbind(rep(1, nrow(data)), data$b)
 
 # Starting values
