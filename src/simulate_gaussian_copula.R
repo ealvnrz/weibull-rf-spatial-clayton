@@ -8,6 +8,11 @@ library(GeoModels)
 model <- "Weibull"
 copula <- "Gaussian"
 
+# Simulation settings
+set.seed(7689)
+n_sim <- 1000
+I <- 20
+
 # Spatial coordinates
 NN <- 800
 x <- runif(NN)
@@ -40,10 +45,7 @@ param <- list(
   shape = shape
 )
 
-# Simulation settings
-set.seed(7689)
-n_sim <- 1000
-I <- 20
+
 
 # Storage for results
 res <- NULL
