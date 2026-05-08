@@ -225,6 +225,32 @@ clayton_aic <- sapply(clayton_fits, function(x) 2*4 - 2*x$logCompLik)
 best_clayton_idx <- which.min(clayton_aic)
 best_clayton_nu <- nu_values[best_clayton_idx]
 
+extract_pdf_page <- function(input, page, output) {
+  pdfseparate <- Sys.which("pdfseparate")
+  if (!nzchar(pdfseparate)) {
+    stop("The 'pdfseparate' command is required to extract the plotted page.")
+  }
+
+  page_pattern <- tempfile(pattern = "combined_variogram_page_", fileext = "_%d.pdf")
+  status <- system2(
+    pdfseparate,
+    args = c(
+      "-f", as.character(page),
+      "-l", as.character(page),
+      shQuote(normalizePath(input, winslash = "/", mustWork = TRUE)),
+      shQuote(normalizePath(page_pattern, winslash = "/", mustWork = FALSE))
+    )
+  )
+
+  extracted <- sub("%d", as.character(page), page_pattern, fixed = TRUE)
+  if (status != 0 || !file.exists(extracted)) {
+    stop("Could not extract page ", page, " from ", input)
+  }
+
+  file.copy(extracted, output, overwrite = TRUE)
+  unlink(extracted)
+}
+
 # Helper function for plotting theoretical variogram
 GeoCovariogram2 <- function(fitted, vario, variogram = TRUE, ...) {
   if(!inherits(fitted, "GeoFit")) stop("Enter an object obtained of class GeoFit\n")
@@ -234,13 +260,19 @@ GeoCovariogram2 <- function(fitted, vario, variogram = TRUE, ...) {
   if(space) {
     cc <- GeoCorrFct(x = h, corrmodel = fitted$corrmodel, covariance = TRUE, variogram = variogram,
                      param = append(fitted$param, fitted$fixed), model = fitted$model)
-    plot(cc, type = "l", xlab = "Distance", ylab = "Semivariogram", col = "red", xlim = c(0, 8))
+    plot(cc, type = "l",
+         xlab = "Distance (m)",
+         ylab = "Semivariogram (scaled intensity squared)",
+         col = "red", xlim = c(0, 8))
     box()
   }
 }
 
 # Combined variogram plot (best Clayton model only)
-pdf(file.path(figs_dir, "combined_variograms_section148.pdf"), width = 10, height = 6)
+combined_variogram_file <- file.path(figs_dir, "combined_variograms_section148.pdf")
+combined_variogram_tmp <- file.path(figs_dir, "combined_variograms_section148_twopage.pdf")
+
+pdf(combined_variogram_tmp, width = 10, height = 6)
 par(bg = "transparent")
 plot(1, 1, type = "n", xlab = "", ylab = "", xlim = c(0, 8), ylim = c(0, 0.00028))
 GeoCovariogram2(res_gaussian, vario = vario_g, pch = 20, ylim = c(0, 0.00025))
@@ -252,10 +284,16 @@ GeoCovariogram(clayton_residuals[[best_clayton_idx]], show.vario = TRUE,
 box()
 dev.off()
 
+extract_pdf_page(combined_variogram_tmp, page = 2, output = combined_variogram_file)
+unlink(combined_variogram_tmp)
+
 # Empirical variogram (points only)
 pdf(file.path(figs_dir, "empirical_variogram_section148.pdf"), width = 6, height = 6)
 par(bg = "transparent")
-plot(1, 1, type = "n", xlab = "Distance", ylab = "Semivariogram", xlim = c(0, 8), ylim = c(0, 0.00025))
+plot(1, 1, type = "n",
+     xlab = "Distance (m)",
+     ylab = "Semivariogram (scaled intensity squared)",
+     xlim = c(0, 8), ylim = c(0, 0.00025))
 points(vario_g$centers, vario_g$variograms, pch = 20)
 box()
 dev.off()

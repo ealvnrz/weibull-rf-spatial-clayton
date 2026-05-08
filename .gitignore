@@ -1,0 +1,8 @@
+logs/
+data/processed/simulation_chunks_v2/
+data/processed/coverage_chunks_v2/
+
+.Rhistory
+.RData
+.Rproj.user/
+*.log

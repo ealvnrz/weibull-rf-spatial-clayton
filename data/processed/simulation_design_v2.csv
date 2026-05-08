@@ -1,0 +1,10 @@
+"scenario_id","scenario_group","description","n","alpha","kappa","nu","beta0","beta1","delta","mu","power2","nugget","sill","m"
+"S0","baseline","Baseline",800,0.06,1,1,0.2,-0.2,0,3.5,0.285714285714286,0,1,2
+"S1","sample_size","Smaller sample size",400,0.06,1,1,0.2,-0.2,0,3.5,0.285714285714286,0,1,2
+"S2","sample_size","Larger sample size",1600,0.06,1,1,0.2,-0.2,0,3.5,0.285714285714286,0,1,2
+"S3","spatial_dependence","Stronger spatial dependence",800,0.08,1,1,0.2,-0.2,0,3.5,0.285714285714286,0,1,2
+"S4","spatial_dependence","Even stronger spatial dependence",800,0.12,1,1,0.2,-0.2,0,3.5,0.285714285714286,0,1,2
+"S5","marginal_skewness","Lower marginal skewness",800,0.06,3,1,0.2,-0.2,0,3.5,0.285714285714286,0,1,2
+"S6","marginal_skewness","Much lower marginal skewness",800,0.06,10,1,0.2,-0.2,0,3.5,0.285714285714286,0,1,2
+"S7","clayton_asymmetry","Symmetric Clayton case",800,0.06,1,2,0.2,-0.2,0,3.5,0.285714285714286,0,1,2
+"S8","clayton_asymmetry","Opposite/asymmetric tail behavior",800,0.06,1,4,0.2,-0.2,0,3.5,0.285714285714286,0,1,2
