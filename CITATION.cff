@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it and the related article."
+title: "Code and data for \"Weibull random fields for spatially dependent positive data: an application to mining haul roads\""
+version: "v1.0.0"
+repository-code: "https://github.com/ealvnrz/weibull-rf-spatial-clayton"
+license: "CC0-1.0"
+authors:
+  - family-names: "Alvarado"
+    given-names: "Eloy"
+  - family-names: "Caamano-Carrillo"
+    given-names: "Christian"
+  - family-names: "Godoy"
+    given-names: "David R."
+keywords:
+  - "Weibull random fields"
+  - "spatial statistics"
+  - "spatial copulas"
+  - "Clayton copula"
+  - "LiDAR intensity"
+  - "mining haul roads"
+  - "composite likelihood"
+  - "GeoModels"
+funding:
+  - "ANID FONDECYT Iniciacion 11250479"
+  - "ANID FONDECYT Regular 1250862"
+  - "ANID FONDEF IDeA ID22I10348"
+preferred-citation:
+  type: article
+  title: "Weibull random fields for spatially dependent positive data: an application to mining haul roads"
+  authors:
+    - family-names: "Alvarado"
+      given-names: "Eloy"
+    - family-names: "Caamano-Carrillo"
+      given-names: "Christian"
+    - family-names: "Godoy"
+      given-names: "David R."

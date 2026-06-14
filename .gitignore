@@ -1,8 +1,25 @@
 logs/
-data/processed/simulation_chunks_v2/
-data/processed/coverage_chunks_v2/
+data/processed/simulation_chunks/
+data/processed/coverage_chunks/
 
 .Rhistory
 .RData
+.Ruserdata
 .Rproj.user/
 *.log
+
+Rplots.pdf
+combined_variogram_page_*.pdf
+*_twopage.pdf
+*.tmp
+*.temp
+*.bak
+
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+.vscode/
+.idea/
+.cache/
+__pycache__/

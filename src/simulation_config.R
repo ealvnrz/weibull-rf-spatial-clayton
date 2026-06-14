@@ -1,6 +1,6 @@
 # Configuration for the expanded simulation study.
 
-simulation_defaults_v2 <- list(
+simulation_defaults <- list(
   reps = 1000L,
   sim_reps = 1000L,
   coverage_reps = 100L,
@@ -17,7 +17,7 @@ simulation_defaults_v2 <- list(
   verbose = TRUE
 )
 
-fixed_parameters_v2 <- list(
+fixed_parameters <- list(
   model = "Weibull",
   corrmodel = "GenWend_Matern",
   mean = 0.2,
@@ -31,7 +31,7 @@ fixed_parameters_v2 <- list(
   upper_bound = 20
 )
 
-simulation_scenarios_v2 <- data.frame(
+simulation_scenarios <- data.frame(
   scenario_id = paste0("S", 0:8),
   scenario_group = c(
     "baseline",
@@ -58,10 +58,10 @@ simulation_scenarios_v2 <- data.frame(
   stringsAsFactors = FALSE
 )
 
-model_specs_v2 <- data.frame(
+model_specs <- data.frame(
   model_id = c("direct", "gaussian", "clayton"),
   model_label = c("Chi-square transformation", "Gaussian copula", "Clayton copula"),
   stringsAsFactors = FALSE
 )
 
-parameter_names_v2 <- c("mean", "mean1", "scale", "shape")
+parameter_names <- c("mean", "mean1", "scale", "shape")

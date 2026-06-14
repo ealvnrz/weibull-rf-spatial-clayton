@@ -250,6 +250,8 @@ GeoVarestbootstrap_custom <- function(fit, K = 100, lower = NULL, upper = NULL,
 
 output_dir <- "data/processed"
 if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
+cli_args <- commandArgs(trailingOnly = TRUE)
+filter_only <- "--filter-only" %in% cli_args
 
 cat("Loading fitted models...\n")
 all_models <- readRDS(file.path(output_dir, "all_fitted_models_section148.rds"))
@@ -261,6 +263,41 @@ nu_values <- all_models$nu_values
 coords <- all_models$coords
 intensity <- all_models$intensity
 X <- all_models$X
+
+direct_model_labels <- c("chi-square transformation", "χ² transformation", "Ï‡Â² transformation")
+active_clayton_labels <- paste0("Clayton (nu=", nu_values, ")")
+
+filter_se_table <- function(se_table) {
+  if (is.null(se_table) || nrow(se_table) == 0L) return(se_table)
+
+  direct_label <- se_table$Model[se_table$Model %in% direct_model_labels]
+  if (length(direct_label) == 0L) {
+    direct_label <- se_table$Model[grepl("transformation", se_table$Model, ignore.case = TRUE)]
+  }
+  direct_label <- if (length(direct_label) > 0L) direct_label[1] else direct_model_labels[1]
+  model_order <- c(direct_label, "Gaussian copula", active_clayton_labels)
+
+  keep <- se_table$Model %in% model_order
+  se_table <- se_table[keep, , drop = FALSE]
+  se_table$.order <- match(se_table$Model, model_order)
+  se_table <- se_table[order(se_table$.order), , drop = FALSE]
+  se_table$.order <- NULL
+  rownames(se_table) <- NULL
+  se_table
+}
+
+filter_bootstrap_results <- function(results, se_table) {
+  if (is.null(results)) return(results)
+  keep <- seq_along(nu_values)
+  if (!is.null(results$bootstrap_clayton) && length(results$bootstrap_clayton) >= length(keep)) {
+    results$bootstrap_clayton <- results$bootstrap_clayton[keep]
+  }
+  if (!is.null(results$se_clayton) && length(results$se_clayton) >= length(keep)) {
+    results$se_clayton <- results$se_clayton[keep]
+  }
+  results$se_table <- se_table
+  results
+}
 
 nboot <- 100
 neighb <- 20
@@ -283,7 +320,25 @@ if (!file.exists(se_table_file)) {
   write.csv(se_table, se_table_file, row.names = FALSE)
   cat("Created new CSV file for standard errors.\n")
 } else {
-  cat("Using existing CSV file (will update/replace Gaussian copula row).\n")
+  cat("Using existing CSV file (will filter to active application models and update/replace Gaussian copula row).\n")
+  se_table <- filter_se_table(read.csv(se_table_file, stringsAsFactors = FALSE))
+  write.csv(se_table, se_table_file, row.names = FALSE)
+}
+
+bootstrap_results_file <- file.path(output_dir, "bootstrap_results_section148.rds")
+if (filter_only) {
+  cat("Filter-only mode: preserving precomputed standard errors for active application models.\n")
+  if (file.exists(se_table_file)) {
+    se_table <- filter_se_table(read.csv(se_table_file, stringsAsFactors = FALSE))
+    write.csv(se_table, se_table_file, row.names = FALSE)
+  }
+  if (file.exists(bootstrap_results_file)) {
+    existing_results <- readRDS(bootstrap_results_file)
+    existing_results <- filter_bootstrap_results(existing_results, se_table)
+    saveRDS(existing_results, bootstrap_results_file)
+  }
+  cat("Filtered standard errors saved to:", se_table_file, "\n")
+  quit(save = "no", status = 0)
 }
 
 add_se_to_table <- function(model_name, se_values) {
@@ -315,7 +370,7 @@ add_se_to_table <- function(model_name, se_values) {
     se_table <- new_row
     cat("  Created new CSV file with", model_name, ".\n")
   }
-  
+  se_table <- filter_se_table(se_table)
   write.csv(se_table, se_table_file, row.names = FALSE)
   cat("  Standard errors saved to CSV.\n")
 }
@@ -344,7 +399,6 @@ if (file.exists(se_table_file)) {
   se_table <- NULL
 }
 
-bootstrap_results_file <- file.path(output_dir, "bootstrap_results_section148.rds")
 if (file.exists(bootstrap_results_file)) {
   existing_results <- readRDS(bootstrap_results_file)
   existing_results$bootstrap_gaussian <- bootstrap_gaussian
@@ -352,6 +406,7 @@ if (file.exists(bootstrap_results_file)) {
   if (!is.null(se_table)) {
     existing_results$se_table <- se_table
   }
+  existing_results <- filter_bootstrap_results(existing_results, se_table)
   saveRDS(existing_results, bootstrap_results_file)
 } else {
   saveRDS(list(

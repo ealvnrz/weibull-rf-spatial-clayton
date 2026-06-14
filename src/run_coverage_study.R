@@ -1,17 +1,17 @@
-simulation_args_v2_preserved <- if (exists("simulation_args_v2", envir = .GlobalEnv, inherits = FALSE)) {
-  get("simulation_args_v2", envir = .GlobalEnv)
+simulation_args_preserved <- if (exists("simulation_args", envir = .GlobalEnv, inherits = FALSE)) {
+  get("simulation_args", envir = .GlobalEnv)
 } else {
   NULL
 }
-rm(list = setdiff(ls(), "simulation_args_v2_preserved"))
-if (!is.null(simulation_args_v2_preserved)) simulation_args_v2 <- simulation_args_v2_preserved
+rm(list = setdiff(ls(), "simulation_args_preserved"))
+if (!is.null(simulation_args_preserved)) simulation_args <- simulation_args_preserved
 
-source("src/simulation_config_v2.R")
-source("src/simulation_utils_v2.R")
+source("src/simulation_config.R")
+source("src/simulation_utils.R")
 
 suppressPackageStartupMessages(library(GeoModels))
 
-args <- parse_cli_args_v2()
+args <- parse_cli_args()
 if (!("reps" %in% args$provided_args) && !is.null(args$coverage_reps)) {
   args$reps <- args$coverage_reps
 }
@@ -30,17 +30,17 @@ if (is.null(args$scenario) || identical(tolower(as.character(args$scenario)), "a
   args$scenario <- "S0"
 }
 
-ensure_output_dirs_v2()
-write_design_v2()
+ensure_output_dirs()
+write_design()
 
-scenarios <- filter_scenarios_v2(args$scenario, FALSE)
+scenarios <- filter_scenarios(args$scenario, FALSE)
 if (nrow(scenarios) != 1L) {
   stop("Coverage study expects exactly one scenario. Use --scenario S0 unless intentionally changing it.")
 }
 m_values <- as.integer(trimws(strsplit(args$m_values, ",", fixed = TRUE)[[1]]))
-chunks <- make_chunks_v2(args$reps, args$chunk_size)
+chunks <- make_chunks(args$reps, args$chunk_size)
 if (isTRUE(args$overwrite)) {
-  clear_coverage_chunks_v2(scenarios$scenario_id[1], m_values)
+  clear_coverage_chunks(scenarios$scenario_id[1], m_values)
 }
 
 tasks <- do.call(rbind, lapply(m_values, function(m) {
@@ -57,22 +57,22 @@ tasks <- do.call(rbind, lapply(m_values, function(m) {
   )
 }))
 
-message("Coverage study v2")
+message("Coverage study")
 message("Scenario: ", scenarios$scenario_id[1])
 message("Replicates: ", args$reps)
 message("Bootstrap replicates per fit: ", args$boot)
 message("Neighborhood values: ", paste(m_values, collapse = ", "))
 
-raw <- run_chunks_parallel_v2(tasks, args$workers, kind = "coverage")
-raw <- dedupe_coverage_raw_v2(raw)
-write.csv(raw, "data/processed/coverage_raw_results_v2.csv", row.names = FALSE)
+raw <- run_chunks_parallel(tasks, args$workers, kind = "coverage")
+raw <- dedupe_coverage_raw(raw)
+write.csv(raw, "data/processed/coverage_raw_results.csv", row.names = FALSE)
 
-coverage <- coverage_summary_v2(raw)
-write.csv(coverage, "data/processed/coverage_summary_v2.csv", row.names = FALSE)
-write.csv(coverage, "data/processed/neighborhood_sensitivity_v2.csv", row.names = FALSE)
+coverage <- coverage_summary(raw)
+write.csv(coverage, "data/processed/coverage_summary.csv", row.names = FALSE)
+write.csv(coverage, "data/processed/neighborhood_sensitivity.csv", row.names = FALSE)
 
 message("Coverage study complete.")
-message("Wrote data/processed/coverage_raw_results_v2.csv")
-message("Wrote data/processed/coverage_summary_v2.csv")
-message("Wrote data/processed/neighborhood_sensitivity_v2.csv")
-cleanup_rplots_v2()
+message("Wrote data/processed/coverage_raw_results.csv")
+message("Wrote data/processed/coverage_summary.csv")
+message("Wrote data/processed/neighborhood_sensitivity.csv")
+cleanup_rplots()

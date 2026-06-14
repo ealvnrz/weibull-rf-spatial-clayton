@@ -119,9 +119,9 @@ fit_gaussian <- GeoFit2(
   neighb = neighb
 )
 
-# Weibull RF via Clayton copula (multiple nu values)
+# Weibull RF via Clayton copula (accepted manuscript application values)
 copula_clayton <- "Clayton"
-nu_values <- c(1, 2, 4, 6)
+nu_values <- c(1, 2, 4)
 clayton_fits <- list()
 
 for (i in seq_along(nu_values)) {
@@ -198,6 +198,19 @@ write.csv(parameter_estimates,
 saveRDS(fit_ind, file.path(output_dir, "fit_independence_section148.rds"))
 saveRDS(fit_direct, file.path(output_dir, "fit_direct_section148.rds"))
 saveRDS(fit_gaussian, file.path(output_dir, "fit_gaussian_section148.rds"))
+active_clayton_files <- file.path(output_dir, paste0("fit_clayton_nu", nu_values, "_section148.rds"))
+existing_clayton_files <- list.files(
+  output_dir,
+  pattern = "^fit_clayton_nu[0-9]+_section148\\.rds$",
+  full.names = TRUE
+)
+stale_clayton_files <- setdiff(
+  normalizePath(existing_clayton_files, winslash = "/", mustWork = FALSE),
+  normalizePath(active_clayton_files, winslash = "/", mustWork = FALSE)
+)
+if (length(stale_clayton_files) > 0L) {
+  unlink(stale_clayton_files)
+}
 for (i in seq_along(clayton_fits)) {
   saveRDS(clayton_fits[[i]], file.path(output_dir, paste0("fit_clayton_nu", nu_values[i], "_section148.rds")))
 }
